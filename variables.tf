@@ -1,3 +1,5 @@
+# variables.tf
+
 variable "project_id" {
   description = "project id"
 }
@@ -5,7 +7,6 @@ variable "project_id" {
 variable "region" {
   description = "region"
 }
-
 
 variable "zone" {
   description = "zone"
