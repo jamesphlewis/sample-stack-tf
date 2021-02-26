@@ -1,3 +1,5 @@
+# main.tf
+
 variable "gke_username" {
   default     = ""
   description = "gke username"
@@ -8,13 +10,9 @@ variable "gke_password" {
   description = "gke password"
 }
 
-provider "google" {
-  project = var.project_id
-  region  = var.region
-}
-
-# GKE cluster
+# Provisioning a "google_container_cluster" resource named "primary"
 resource "google_container_cluster" "primary" {
+  # These variables gets pulled from our variables.tf file
   name     = "${var.project_id}-gke"
   location = var.zone
 
@@ -32,13 +30,14 @@ resource "google_container_cluster" "primary" {
   }
 }
 
-# Separately Managed Node Pool
+# Provisioning a "google_container_node_pool" resource named "primary_nodes"
+# We do this separately so we can have finer control over our node pool
 resource "google_container_node_pool" "primary_nodes" {
-  name     = "${google_container_cluster.primary.name}-node-pool"
-  location = var.zone
+  name       = "${google_container_cluster.primary.name}-node-pool"
+  location   = var.zone
 
   # The cluster for this node pool is the cluster we created above
-  cluster = google_container_cluster.primary.name
+  cluster    = google_container_cluster.primary.name
   # And start this cluster with two nodes
   node_count = 2
 
@@ -48,6 +47,7 @@ resource "google_container_node_pool" "primary_nodes" {
       "https://www.googleapis.com/auth/monitoring",
     ]
 
+    # We start with some tiny, preemptible instances for cost purposes
     preemptible  = true
     machine_type = "e2-micro"
   }
